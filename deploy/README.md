@@ -37,7 +37,11 @@ O backend sobe em `http://localhost:9000` (admin em `/app`, login com as env
 | `postgres` | postgres:17-alpine | banco do Medusa (healthcheck `pg_isready`) |
 | `redis` | redis:7-alpine | event bus / workflow engine |
 | `meilisearch` | getmeili/meilisearch:v1.49.0 | busca (só é usado se as env `MEILISEARCH_*` existirem) |
-| `minio` + `minio-init` | minio | S3 local (só é usado com as env `S3_*`; sem elas cai em storage local efêmero) |
+
+Sem MinIO de propósito: as imagens `minio/minio`/`minio/mc` foram purgadas do
+Docker Hub (as tags do compose de dev do repo dão 404) e o `quay.io/minio`
+passou a exigir autenticação. S3 é opcional no Medusa — sem as env `S3_*` o
+storage cai para local efêmero dentro do container.
 | `migrate` | pos-backend:homolog | one-shot `db:migrate`, roda a cada `up` |
 | `sync-links` | pos-backend:homolog | one-shot `db:sync-links`, após o migrate |
 | `ensure-admin` | pos-backend:homolog | one-shot idempotente: cria o admin se não existir |
