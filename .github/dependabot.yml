@@ -1,0 +1,45 @@
+# House standard (mirrors medusa-pos/.github/dependabot.yml). Two pnpm
+# workspaces with separate lockfiles, so npm gets one entry per directory.
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 14
+      semver-major-days: 30
+      semver-minor-days: 14
+      semver-patch-days: 7
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      medusa:
+        patterns:
+          - "@medusajs/*"
+    open-pull-requests-limit: 10
+
+  - package-ecosystem: "npm"
+    directory: "/storefront"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 14
+      semver-major-days: 30
+      semver-minor-days: 14
+      semver-patch-days: 7
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      next:
+        patterns:
+          - "next"
+          - "react"
+          - "react-dom"
+    open-pull-requests-limit: 10
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 5
