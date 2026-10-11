@@ -39,6 +39,9 @@ importers:
       '@medusajs/payment-stripe':
         specifier: 2.19.0
         version: 2.19.0(@medusajs/framework@2.19.0(@medusajs/cli@2.19.0(@types/node@22.19.1))(@types/node@22.19.1)(ioredis@5.8.2)(vite@7.3.6(@types/node@22.19.1)(jiti@1.21.7)(yaml@2.9.0))(zod@4.2.0))
+      '@medusajs/utils':
+        specifier: 2.19.0
+        version: 2.19.0(@types/node@22.19.1)(express@4.22.1)
       '@medusajs/workflow-engine-redis':
         specifier: 2.19.0
         version: 2.19.0(@medusajs/framework@2.19.0(@medusajs/cli@2.19.0(@types/node@22.19.1))(@types/node@22.19.1)(ioredis@5.8.2)(vite@7.3.6(@types/node@22.19.1)(jiti@1.21.7)(yaml@2.9.0))(zod@4.2.0))
@@ -7199,8 +7202,8 @@ snapshots:
 
   '@ardatan/relay-compiler@12.0.3(graphql@16.12.0)':
     dependencies:
-      '@babel/generator': 7.28.5
-      '@babel/parser': 7.28.5
+      '@babel/generator': 7.29.8
+      '@babel/parser': 7.29.8
       '@babel/runtime': 7.28.4
       chalk: 4.1.2
       fb-watchman: 2.0.2
