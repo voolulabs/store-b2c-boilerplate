@@ -37,6 +37,13 @@ RUN DATABASE_URL=postgres://build:build@127.0.0.1:5432/build \
     JWT_SECRET=build-stage-placeholder-not-a-secret-0123456789abcdef \
     COOKIE_SECRET=build-stage-placeholder-not-a-secret-fedcba9876543210 \
     pnpm build
+# O bin do CLI (@medusajs/cli/cli.js) registra ts-node + tsconfig-paths a partir
+# do cwd e, em NODE_ENV=production, engole qualquer falha silenciosamente — sem
+# eles, os aliases do medusa-config (lib/*, utils/*) não resolvem no standalone.
+# O tsconfig mínimo abaixo dá o mapeamento sem puxar swc (o tsconfig de dev tem
+# "ts-node": {"swc": true}, que exigiria @swc/core em runtime); as deps
+# ts-node/typescript/tsconfig-paths são de produção por esse mesmo contrato.
+RUN printf '{\n  "compilerOptions": {\n    "baseUrl": ".",\n    "paths": {\n      "*": ["./src/*"]\n    }\n  }\n}\n' > .medusa/server/tsconfig.json
 
 FROM node:${NODE_VERSION}-bookworm-slim AS runner-slim
 RUN apt-get update \
