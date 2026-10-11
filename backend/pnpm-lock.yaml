@@ -42,12 +42,18 @@ importers:
       '@medusajs/workflow-engine-redis':
         specifier: 2.19.0
         version: 2.19.0(@medusajs/framework@2.19.0(@medusajs/cli@2.19.0(@types/node@22.19.1))(@types/node@22.19.1)(ioredis@5.8.2)(vite@7.3.6(@types/node@22.19.1)(jiti@1.21.7)(yaml@2.9.0))(zod@4.2.0))
+      '@narisolutions/medusa-plugin-pos':
+        specifier: ^0.1.3
+        version: 0.1.3(2vny6qrrgikrgxk3plvnlmb3mu)
       '@react-email/components':
         specifier: ^1.0.1
         version: 1.0.12(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@rokmohar/medusa-plugin-meilisearch':
         specifier: 2.0.0
         version: 2.0.0(ajco4cvgb3624af2p7thtgz6bi)
+      '@voolulabs/medusajs-plugin-pos-payments':
+        specifier: 0.1.0-rc.1
+        version: 0.1.0-rc.1(4jd562ypbr3b7hm2hr5rtg7p4a)
       medusajs-launch-utils:
         specifier: 0.0.19
         version: 0.0.19
@@ -1751,6 +1757,13 @@ packages:
     resolution: {integrity: sha512-x0fWaQtYp4E6sktbsdAqnehxDgEc/VwM7uLsRCYWaiGu0ykYdZPiS8zCWdnjHwyiumousxfBm4SO31eXqwEZhQ==}
     cpu: [x64]
     os: [win32]
+
+  '@narisolutions/medusa-plugin-pos@0.1.3':
+    resolution: {integrity: sha512-yxArrasJhu1ov6Y3L1UfnsYmqAHnCgGbN4nhVuT6dsuCw2XihvN9sNn5tMNxEeDUGjrHaQPATR+0yux5QB4GGQ==}
+    engines: {node: '>=20'}
+    peerDependencies:
+      '@medusajs/framework': '>=2.15.0'
+      '@medusajs/medusa': '>=2.15.0'
 
   '@next/env@16.1.7':
     resolution: {integrity: sha512-rJJbIdJB/RQr2F1nylZr/PJzamvNNhfr3brdKP6s/GW850jbtR70QlSfFselvIBbcPUOlQwBakexjFzqLzF6pg==}
@@ -4187,6 +4200,14 @@ packages:
     engines: {node: ^20.19.0 || >=22.12.0}
     peerDependencies:
       vite: ^4.2.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0
+
+  '@voolulabs/medusajs-plugin-pos-payments@0.1.0-rc.1':
+    resolution: {integrity: sha512-n0MBqZykvxe4I71mKUhVmiWaLxAqWJFLXrhdgcysEdnLH66pbcpb6Z4q7wc26Ehaw5OX/MsAqpLweihRONzwGQ==}
+    engines: {node: '>=20'}
+    peerDependencies:
+      '@medusajs/framework': '>=2.19.0 <3'
+      '@medusajs/medusa': '>=2.19.0 <3'
+      '@medusajs/utils': '>=2.19.0 <3'
 
   '@whatwg-node/promise-helpers@1.3.2':
     resolution: {integrity: sha512-Nst5JdK47VIl9UcGwtv2Rcgyn5lWtZ0/mhRQ4G8NN2isxpq2TO30iqHzmwoJycjWuyUfg3GFXqP/gFHXeV57IA==}
@@ -9479,6 +9500,11 @@ snapshots:
   '@msgpackr-extract/msgpackr-extract-win32-x64@3.0.3':
     optional: true
 
+  '@narisolutions/medusa-plugin-pos@0.1.3(2vny6qrrgikrgxk3plvnlmb3mu)':
+    dependencies:
+      '@medusajs/framework': 2.19.0(@medusajs/cli@2.19.0(@types/node@22.19.1))(@types/node@22.19.1)(ioredis@5.8.2)(vite@7.3.6(@types/node@22.19.1)(jiti@1.21.7)(yaml@2.9.0))(zod@4.2.0)
+      '@medusajs/medusa': 2.19.0(@medusajs/admin-sdk@2.19.0)(@medusajs/cli@2.19.0(@types/node@22.19.1))(@medusajs/dashboard@2.19.0(@sinclair/typebox@0.34.41)(@types/react-dom@18.3.7(@types/react@18.3.27))(@types/react@18.3.27)(ajv@8.13.0)(typescript@5.9.3))(@medusajs/framework@2.19.0(@medusajs/cli@2.19.0(@types/node@22.19.1))(@types/node@22.19.1)(ioredis@5.8.2)(vite@7.3.6(@types/node@22.19.1)(jiti@1.21.7)(yaml@2.9.0))(zod@4.2.0))(@medusajs/icons@2.19.0(react@18.3.1))(@medusajs/test-utils@2.19.0)(@medusajs/ui@4.2.1(@types/react-dom@18.3.7(@types/react@18.3.27))(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(@sinclair/typebox@0.34.41)(@swc/core@1.16.1(@swc/helpers@0.5.17))(@types/node@22.19.1)(@types/react-dom@18.3.7(@types/react@18.3.27))(@types/react@18.3.27)(ajv@8.13.0)(awilix@8.0.1)(jiti@1.21.7)(picomatch@4.0.3)(posthog-node@4.18.0)(react-dom@18.3.1(react@18.3.1))(react-router-dom@7.18.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)(typescript@5.9.3)(yaml@2.9.0)
+
   '@next/env@16.1.7': {}
 
   '@next/swc-darwin-arm64@16.1.7':
@@ -12509,6 +12535,12 @@ snapshots:
       vite: 7.3.6(@types/node@22.19.1)(jiti@1.21.7)(yaml@2.9.0)
     transitivePeerDependencies:
       - supports-color
+
+  '@voolulabs/medusajs-plugin-pos-payments@0.1.0-rc.1(4jd562ypbr3b7hm2hr5rtg7p4a)':
+    dependencies:
+      '@medusajs/framework': 2.19.0(@medusajs/cli@2.19.0(@types/node@22.19.1))(@types/node@22.19.1)(ioredis@5.8.2)(vite@7.3.6(@types/node@22.19.1)(jiti@1.21.7)(yaml@2.9.0))(zod@4.2.0)
+      '@medusajs/medusa': 2.19.0(@medusajs/admin-sdk@2.19.0)(@medusajs/cli@2.19.0(@types/node@22.19.1))(@medusajs/dashboard@2.19.0(@sinclair/typebox@0.34.41)(@types/react-dom@18.3.7(@types/react@18.3.27))(@types/react@18.3.27)(ajv@8.13.0)(typescript@5.9.3))(@medusajs/framework@2.19.0(@medusajs/cli@2.19.0(@types/node@22.19.1))(@types/node@22.19.1)(ioredis@5.8.2)(vite@7.3.6(@types/node@22.19.1)(jiti@1.21.7)(yaml@2.9.0))(zod@4.2.0))(@medusajs/icons@2.19.0(react@18.3.1))(@medusajs/test-utils@2.19.0)(@medusajs/ui@4.2.1(@types/react-dom@18.3.7(@types/react@18.3.27))(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3))(@sinclair/typebox@0.34.41)(@swc/core@1.16.1(@swc/helpers@0.5.17))(@types/node@22.19.1)(@types/react-dom@18.3.7(@types/react@18.3.27))(@types/react@18.3.27)(ajv@8.13.0)(awilix@8.0.1)(jiti@1.21.7)(picomatch@4.0.3)(posthog-node@4.18.0)(react-dom@18.3.1(react@18.3.1))(react-router-dom@7.18.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)(typescript@5.9.3)(yaml@2.9.0)
+      '@medusajs/utils': 2.19.0(@types/node@22.19.1)(express@4.22.1)
 
   '@whatwg-node/promise-helpers@1.3.2':
     dependencies:

@@ -174,6 +174,23 @@ export const WORKER_MODE =
   (process.env.MEDUSA_WORKER_MODE as 'worker' | 'server' | 'shared' | undefined) ?? 'shared'
 
 /**
+ * Fase 1 (plano-pos-br.md §6): providers manuais/terminal-presente do plugin
+ * de pagamentos (@voolulabs/medusa-plugin-pos-payments) registrados quando true.
+ * Credenciais reais de adquirente chegam nas fases seguintes - sempre no backend.
+ */
+export const POS_PAYMENTS_MANUAL = process.env.POS_PAYMENTS_MANUAL === 'true'
+
+/**
+ * Fase 2 (plano-pos-br.md §7) - adapter Mercado Pago Point. Credenciais via env
+ * do host - nunca literal no repo. O provider mercadopago e as options do
+ * subscriber só sobem com POS_PAYMENTS_MP_TEST=true (guard T6: aceita serial
+ * SBX* apenas com mpPointTestMode explícito; produção deixa a flag ausente).
+ */
+export const MP_ACCESS_TOKEN = process.env.MP_ACCESS_TOKEN || ''
+export const MP_WEBHOOK_SECRET = process.env.MP_WEBHOOK_SECRET || ''
+export const POS_PAYMENTS_MP_TEST = process.env.POS_PAYMENTS_MP_TEST === 'true'
+
+/**
  * Disable Admin
  */
 export const SHOULD_DISABLE_ADMIN = process.env.MEDUSA_DISABLE_ADMIN === 'true'
