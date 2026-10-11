@@ -1,0 +1,89 @@
+# Infra de apoio do stack de homologação — mesmas imagens do docker-compose.yml
+# de dev (postgres 17 / redis 7 / meilisearch v1.49 / minio), com o projeto
+# próprio pos-homolog. O backend só registra Meilisearch/S3 com as env
+# correspondentes; subir os serviços aqui não obriga usá-los.
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: medusa
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d medusa"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+      start_interval: 2s
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+      start_interval: 2s
+
+  meilisearch:
+    image: getmeili/meilisearch:v1.49.0
+    restart: unless-stopped
+    environment:
+      MEILI_ENV: development
+      # Local-only key; use a strong generated key in production.
+      MEILI_MASTER_KEY: local_meilisearch_master_key
+    ports:
+      - "7700:7700"
+    volumes:
+      - meilisearch-data:/meili_data
+
+  minio:
+    image: minio/minio:RELEASE.2025-09-07T16-13-09Z
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: medusa
+      MINIO_ROOT_PASSWORD: supersecret
+    ports:
+      - "9004:9000"
+      - "9005:9001"
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:9000/minio/health/live || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+      start_interval: 2s
+
+  # One-shot job: cria o bucket medusa-media e o deixa publicamente legível.
+  minio-init:
+    image: minio/mc:RELEASE.2025-08-13T08-35-41Z
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 medusa supersecret &&
+      mc mb --ignore-existing local/medusa-media &&
+      mc anonymous set download local/medusa-media
+      "
+
+volumes:
+  postgres-data:
+  redis-data:
+  meilisearch-data:
+  minio-data:

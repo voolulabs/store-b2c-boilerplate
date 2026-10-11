@@ -1,0 +1,19 @@
+# Stack de homologação POS (docker compose) — base arquitetural store-b2c.
+# Fragmentos por preocupação: db (infra de apoio), seed (ato manual) e
+# backend (one-shots de bootstrap + app).
+#
+# Uso no WSL (docker-compose standalone v2.24, a partir deste diretório):
+#   cp homolog.env.example .env          # e preencha os valores
+#   docker-compose build                 # constrói pos-backend:homolog
+#   docker-compose up -d                 # db + migrate + sync-links + admin + backend
+#   docker-compose --profile seed run --rm seed   # seed manual (ato explícito)
+#
+# Os contextos de build dos fragmentos são relativos ao diretório do fragmento
+# (deploy/../backend). O seed NÃO roda no boot padrão por decisão: boot
+# determinístico, seed é ato explícito do operador.
+name: pos-homolog
+
+include:
+  - compose.db.yaml
+  - compose.seed.yaml
+  - compose.backend.yaml
