@@ -11,6 +11,10 @@ import {
   RESEND_FROM_EMAIL,
   SENDGRID_API_KEY,
   SENDGRID_FROM_EMAIL,
+  POS_PAYMENTS_MANUAL,
+  MP_ACCESS_TOKEN,
+  MP_WEBHOOK_SECRET,
+  POS_PAYMENTS_MP_TEST,
   SHOULD_DISABLE_ADMIN,
   STORE_CORS,
   STRIPE_API_KEY,
@@ -140,22 +144,46 @@ const medusaConfig = {
         ]
       }
     }] : []),
-    ...(STRIPE_API_KEY && STRIPE_WEBHOOK_SECRET ? [{
+    // PAYMENT sempre registrado: collection -> session -> capture dependem dele
+    // mesmo sem adquirente (pp_system_default e a rede de seguranca do app de caixa).
+    {
       key: Modules.PAYMENT,
       resolve: '@medusajs/payment',
       options: {
         providers: [
-          {
+          ...(STRIPE_API_KEY && STRIPE_WEBHOOK_SECRET ? [{
             resolve: '@medusajs/payment-stripe',
             id: 'stripe',
             options: {
               apiKey: STRIPE_API_KEY,
               webhookSecret: STRIPE_WEBHOOK_SECRET,
             },
-          },
+          }] : []),
+          // Fase 1 - terminal-presente (plano-pos-br.md §6.4): um registro por
+          // metodo; transfer existe para o handoff de transferencia nao degradar
+          // silenciosamente para pp_system_default. O app envia o id verbatim e
+          // o Medusa monta pp_pos-terminal_<id>.
+          ...(POS_PAYMENTS_MANUAL ? ['card', 'pix', 'cash', 'transfer'].map((method) => ({
+            resolve: '@voolulabs/medusajs-plugin-pos-payments/providers/pos-terminal',
+            id: method,
+            options: { acquirer: 'manual' },
+          })) : []),
+          // Fase 2 - Mercado Pago Point (plano-pos-br.md §7). Só sobe com flag
+          // de teste explícita; mpPointTestMode=true aceita serial SBX* (guard
+          // T6 fail-closed no adapter — default é recusar).
+          ...(POS_PAYMENTS_MP_TEST ? [{
+            resolve: '@voolulabs/medusajs-plugin-pos-payments/providers/pos-terminal',
+            id: 'mercadopago',
+            options: {
+              acquirer: 'mercadopago',
+              accessToken: MP_ACCESS_TOKEN,
+              webhookSecret: MP_WEBHOOK_SECRET,
+              mpPointTestMode: true,
+            },
+          }] : []),
         ],
       },
-    }] : []),
+    },
     // Medusa 2.19 introduced its own Search Module, and it owns the indexing:
     // it creates and migrates the indexes, seeds them, and keeps them current
     // from catalog events. The Meilisearch plugin is only the engine behind it.
@@ -185,7 +213,31 @@ const medusaConfig = {
     ...(MEILISEARCH_ENABLED ? [{
       resolve: '@rokmohar/medusa-plugin-meilisearch',
       options: {}
-    }] : [])
+    }] : []),
+    {
+      resolve: '@narisolutions/medusa-plugin-pos',
+      options: {
+        defaultCurrencyCode: 'brl',
+      },
+    },
+    // §6.4 registro duplo (obrigatorio): as rotas /admin/pos-payments/* so
+    // carregam pelo array plugins; o resolve em modules carrega apenas o provider.
+    {
+      resolve: '@voolulabs/medusajs-plugin-pos-payments',
+      options: {
+        // Espelho das options do provider (§6.3/T5): alimentam as rotas admin
+        // de charges e o subscriber de reconciliacao do webhook. Sem a flag de
+        // teste o plugin carrega vazio (rotas respondem NOT_ALLOWED).
+        ...(POS_PAYMENTS_MP_TEST ? {
+          posTerminal: {
+            acquirer: 'mercadopago',
+            accessToken: MP_ACCESS_TOKEN,
+            webhookSecret: MP_WEBHOOK_SECRET,
+            mpPointTestMode: true,
+          },
+        } : {}),
+      },
+    },
   ]
 };
 
