@@ -9,7 +9,7 @@ services:
     profiles: ["seed"]
     command: ["node", "node_modules/@medusajs/cli/cli.js", "exec", "./src/scripts/seed.js"]
     environment:
-      DATABASE_URL: postgres://postgres:postgres@postgres:5432/medusa
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/medusa?sslmode=disable
       REDIS_URL: redis://redis:6379
       NODE_ENV: production
       MEDUSA_DISABLE_TELEMETRY: "true"

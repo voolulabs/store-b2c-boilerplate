@@ -12,7 +12,10 @@ x-backend-env: &backend-env
   NODE_ENV: production
   MEDUSA_WORKER_MODE: shared
   MEDUSA_DISABLE_TELEMETRY: "true"
-  DATABASE_URL: postgres://postgres:postgres@postgres:5432/medusa
+  # sslmode=disable: o loadDatabaseConfig do core trata host nao-localhost como
+  # remoto e exigiria SSL; o postgres do stack roda sem TLS (rede interna do
+  # compose). Válvula documentada no próprio fonte (@medusajs/utils).
+  DATABASE_URL: postgres://postgres:postgres@postgres:5432/medusa?sslmode=disable
   REDIS_URL: redis://redis:6379
   JWT_SECRET: ${JWT_SECRET:?JWT_SECRET obrigatório no .env do stack}
   COOKIE_SECRET: ${COOKIE_SECRET:?COOKIE_SECRET obrigatório no .env do stack}
