@@ -41,6 +41,11 @@ services:
     init: true
     security_opt:
       - no-new-privileges:true
+    # DNS embutido do docker: o resolv.conf do host WSL é do Tailscale
+    # MagicDNS (100.100.100.100), que nao conhece nomes de servico do docker
+    # (EAI_AGAIN) — aponta explicitamente para o resolver 127.0.0.11.
+    dns:
+      - 127.0.0.11
 
   sync-links:
     image: pos-backend:homolog
@@ -53,6 +58,11 @@ services:
     init: true
     security_opt:
       - no-new-privileges:true
+    # DNS embutido do docker: o resolv.conf do host WSL é do Tailscale
+    # MagicDNS (100.100.100.100), que nao conhece nomes de servico do docker
+    # (EAI_AGAIN) — aponta explicitamente para o resolver 127.0.0.11.
+    dns:
+      - 127.0.0.11
 
   ensure-admin:
     image: pos-backend:homolog
@@ -65,6 +75,11 @@ services:
     init: true
     security_opt:
       - no-new-privileges:true
+    # DNS embutido do docker: o resolv.conf do host WSL é do Tailscale
+    # MagicDNS (100.100.100.100), que nao conhece nomes de servico do docker
+    # (EAI_AGAIN) — aponta explicitamente para o resolver 127.0.0.11.
+    dns:
+      - 127.0.0.11
 
   backend:
     build:
@@ -91,5 +106,10 @@ services:
     init: true
     security_opt:
       - no-new-privileges:true
+    # DNS embutido do docker: o resolv.conf do host WSL é do Tailscale
+    # MagicDNS (100.100.100.100), que nao conhece nomes de servico do docker
+    # (EAI_AGAIN) — aponta explicitamente para o resolver 127.0.0.11.
+    dns:
+      - 127.0.0.11
     restart: unless-stopped
     mem_limit: 1500m

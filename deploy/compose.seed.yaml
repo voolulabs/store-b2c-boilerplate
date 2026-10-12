@@ -20,3 +20,8 @@ services:
     init: true
     security_opt:
       - no-new-privileges:true
+    # DNS embutido do docker: o resolv.conf do host WSL é do Tailscale
+    # MagicDNS (100.100.100.100), que nao conhece nomes de servico do docker
+    # (EAI_AGAIN) — aponta explicitamente para o resolver 127.0.0.11.
+    dns:
+      - 127.0.0.11

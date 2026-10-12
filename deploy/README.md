@@ -79,6 +79,14 @@ explícito do operador via profile `seed`. O seed é idempotente por design
 Gere secrets com:
 `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`
 
+## DNS do stack
+
+O resolv.conf do host WSL é gerenciado pelo Tailscale MagicDNS
+(`100.100.100.100`), que não resolve nomes de serviço do docker (`EAI_AGAIN`).
+Os serviços do stack apontam explicitamente para o resolver embutido do docker
+(`dns: [127.0.0.11]`) — não remova: sem isso a descoberta de serviço
+(postgres/redis) falha.
+
 ## Segurança
 
 - `.env` é gitignored; o `.dockerignore` exclui `.env*` e `.npmrc` do contexto de
