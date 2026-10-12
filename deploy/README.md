@@ -37,16 +37,16 @@ O backend sobe em `http://localhost:9000` (admin em `/app`, login com as env
 | `postgres` | postgres:17-alpine | banco do Medusa (healthcheck `pg_isready`) |
 | `redis` | redis:7-alpine | event bus / workflow engine |
 | `meilisearch` | getmeili/meilisearch:v1.49.0 | busca (só é usado se as env `MEILISEARCH_*` existirem) |
-
-Sem MinIO de propósito: as imagens `minio/minio`/`minio/mc` foram purgadas do
-Docker Hub (as tags do compose de dev do repo dão 404) e o `quay.io/minio`
-passou a exigir autenticação. S3 é opcional no Medusa — sem as env `S3_*` o
-storage cai para local efêmero dentro do container.
 | `migrate` | pos-backend:homolog | one-shot `db:migrate`, roda a cada `up` |
 | `sync-links` | pos-backend:homolog | one-shot `db:sync-links`, após o migrate |
 | `ensure-admin` | pos-backend:homolog | one-shot idempotente: cria o admin se não existir |
 | `backend` | pos-backend:homolog | app Medusa, porta 9000, healthcheck em `/health` |
 | `seed` | pos-backend:homolog | profile `seed`, one-shot manual |
+
+Sem MinIO de propósito: as imagens `minio/minio`/`minio/mc` foram purgadas do
+Docker Hub (as tags do compose de dev do repo dão 404) e o `quay.io/minio`
+passou a exigir autenticação. S3 é opcional no Medusa — sem as env `S3_*` o
+storage cai para local efêmero dentro do container.
 
 ### Por que one-shots explícitos no bootstrap
 
@@ -62,8 +62,8 @@ rodam a cada `up`, e o admin é garantido por `src/scripts/ensure-admin.ts`
 
 Boot padrão determinístico: o seed demo (região Brasil como primeira região, BRL,
 produtos, `metadata.pos.payment_methods` com os ids reais dos providers) é um ato
-explícito do operador via profile `seed`. O seed é idempotente por design
-(preenche `metadata.pos` só quando ausente).
+explícito do operador via profile `seed`. É one-shot, não re-executável — só o
+`metadata.pos` tem guarda (preenchido quando ausente; regiões/produtos não).
 
 ## Variáveis de ambiente (`deploy/.env`)
 
@@ -86,9 +86,6 @@ O resolv.conf do host WSL é gerenciado pelo Tailscale MagicDNS
 Os serviços do stack apontam explicitamente para o resolver embutido do docker
 (`dns: [127.0.0.11]`) — não remova: sem isso a descoberta de serviço
 (postgres/redis) falha.
-
-## Segurança
-
 - `.env` é gitignored; o `.dockerignore` exclui `.env*` e `.npmrc` do contexto de
   build — o `postBuild.js` copiaria um `.env` presente no contexto para dentro da
   imagem, então nada de credencial entra em layer.
@@ -123,4 +120,4 @@ comandos e o healthcheck precisam ser ajustados (e isso ainda não foi validado)
 `backend/scripts/e2e-pos.mjs` replica o contrato do app de caixa por API (login
 admin, `/pos/*`, draft order, payment collection/session, providers de terminal,
 refund). Rode-o apontando para `http://localhost:9000` com o stack no ar e os env
-`MEDUSA_ADMIN_*` do seu `.env` [pendente de validação contra o container].
+`MEDUSA_ADMIN_*` do seu `.env` [ok] validado contra o container (14/14, ciclo real de execução do P2).

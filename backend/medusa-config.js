@@ -159,7 +159,7 @@ const medusaConfig = {
               webhookSecret: STRIPE_WEBHOOK_SECRET,
             },
           }] : []),
-          // Fase 1 - terminal-presente (plano-pos-br.md §6.4): um registro por
+          // Fase 1 - terminal-presente: um registro por
           // metodo; transfer existe para o handoff de transferencia nao degradar
           // silenciosamente para pp_system_default. O app envia o id verbatim e
           // o Medusa monta pp_pos-terminal_<id>.
@@ -168,7 +168,7 @@ const medusaConfig = {
             id: method,
             options: { acquirer: 'manual' },
           })) : []),
-          // Fase 2 - Mercado Pago Point (plano-pos-br.md §7). Só sobe com flag
+          // Fase 2 - Mercado Pago Point. Só sobe com flag
           // de teste explícita; mpPointTestMode=true aceita serial SBX* (guard
           // T6 fail-closed no adapter — default é recusar).
           ...(POS_PAYMENTS_MP_TEST ? [{

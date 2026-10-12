@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * E2E POS por API — plano-pos-br.md §5.4 + critérios §6.6.
+ * E2E POS por API — espelha o contrato do app de caixa.
  *
  * Node puro com fetch, sem dependências. Replica o contrato exato do app de
  * caixa (medusa-pos): login → /pos/health → produtos brl → região Brasil

@@ -1,5 +1,5 @@
-# Seed idempotente (Brasil como primeira região, metadata.pos.payment_methods
-# com ids reais, providers de terminal na região) — ato EXPLÍCITO por decisão:
+# Seed demo (one-shot, não re-executável: Brasil 1ª região via determinismo
+d # de ULID, metadata.pos preenchido só quando ausente) — ato EXPLÍCITO:
 #   docker-compose --profile seed run --rm seed
 # O standalone embarca os scripts já compilados (src/scripts/seed.js), sem
 # loader TS. Depende de postgres healthy e recebe as mesmas env do backend.
