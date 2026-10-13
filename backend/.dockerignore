@@ -1,0 +1,15 @@
+# Contexto de build = backend/. Nada de credencial nem artefato local entra na
+# layer: o postBuild copiaria um .env presente no contexto para dentro do
+# standalone, e um .npmrc local redirecionaria as installs do build para outro
+# registry — por isso ambos são excluídos explicitamente.
+node_modules
+.medusa
+dist
+.env*
+.npmrc
+storefront
+scripts
+graft
+*.md
+medusa-config.js.bak*
+tsconfig.tsbuildinfo

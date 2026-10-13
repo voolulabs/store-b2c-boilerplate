@@ -1,0 +1,31 @@
+# Seed demo (one-shot, não re-executável: Brasil 1ª região via determinismo
+# de ULID, metadata.pos preenchido só quando ausente) — ato EXPLÍCITO:
+#   docker-compose --profile seed run --rm seed
+# O standalone embarca os scripts já compilados (src/scripts/seed.js), sem
+# loader TS. Depende de postgres healthy e recebe as mesmas env do backend.
+services:
+  seed:
+    image: pos-backend:homolog
+    profiles: ["seed"]
+    command: ["node", "node_modules/@medusajs/cli/cli.js", "exec", "./src/scripts/seed.js"]
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/medusa?sslmode=disable
+      REDIS_URL: redis://redis:6379
+      NODE_ENV: production
+      MEDUSA_DISABLE_TELEMETRY: "true"
+      # constants.ts afirma JWT_SECRET/COOKIE_SECRET no import — o seed também
+      # carrega o medusa-config e precisa deles (o valor em si não é usado aqui).
+      JWT_SECRET: ${JWT_SECRET}
+      COOKIE_SECRET: ${COOKIE_SECRET}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+    init: true
+    security_opt:
+      - no-new-privileges:true
+    # DNS embutido do docker: o resolv.conf do host WSL é do Tailscale
+    # MagicDNS (100.100.100.100), que nao conhece nomes de servico do docker
+    # (EAI_AGAIN) — aponta explicitamente para o resolver 127.0.0.11.
+    dns:
+      - 127.0.0.11

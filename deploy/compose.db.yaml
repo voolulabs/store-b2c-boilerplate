@@ -1,0 +1,61 @@
+# Infra de apoio do stack de homologação — mesmas imagens do docker-compose.yml
+# de dev (postgres 17 / redis 7 / meilisearch v1.49), com o projeto
+# próprio pos-homolog. O backend só registra Meilisearch/S3 com as env
+# correspondentes; subir os serviços aqui não obriga usá-los.
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: medusa
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d medusa"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+      start_interval: 2s
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+      start_interval: 2s
+
+  meilisearch:
+    image: getmeili/meilisearch:v1.49.0
+    restart: unless-stopped
+    environment:
+      MEILI_ENV: development
+      # Local-only key; use a strong generated key in production.
+      MEILI_MASTER_KEY: local_meilisearch_master_key
+    ports:
+      - "7700:7700"
+    volumes:
+      - meilisearch-data:/meili_data
+
+  # Sem MinIO de propósito: minio/minio e minio/mc foram purgados do Docker Hub
+  # (as tags do compose de dev do repo retornam 404) e o quay.io/minio ficou
+  # privado. S3 é opcional no Medusa — sem as env S3_* o storage cai para local
+  # efêmero dentro do container. Se um S3 local voltar a ser necessário, escolher
+  # uma imagem mantida e pinar por digest.
+
+volumes:
+  postgres-data:
+  redis-data:
+  meilisearch-data:

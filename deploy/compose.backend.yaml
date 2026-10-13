@@ -1,0 +1,115 @@
+# Backend Medusa (standalone .medusa/server). Bootstrap por one-shots
+# explícitos a cada `up` — migrate e sync-links rodam sempre (idempotentes),
+# ensure-admin é idempotente por checagem (o `medusa user` do CLI falharia em
+# duplicado e travaria o `up` seguinte). O init-backend (medusajs-launch-utils)
+# fica no fluxo dev/Railway: depois que a base tem usuário, ele pula o migrate
+# inteiro, e o child_process exec dele depende de shell.
+#
+# A interface de comandos assume o runner slim (ENTRYPOINT tini + node no
+# PATH). No swap distroless, o ENTRYPOINT passa a ser o próprio node — revisar
+# os `command:` e o healthcheck antes do swap.
+x-backend-env: &backend-env
+  NODE_ENV: production
+  MEDUSA_WORKER_MODE: shared
+  MEDUSA_DISABLE_TELEMETRY: "true"
+  # sslmode=disable: o loadDatabaseConfig do core trata host nao-localhost como
+  # remoto e exigiria SSL; o postgres do stack roda sem TLS (rede interna do
+  # compose). Válvula documentada no próprio fonte (@medusajs/utils).
+  DATABASE_URL: postgres://postgres:postgres@postgres:5432/medusa?sslmode=disable
+  REDIS_URL: redis://redis:6379
+  JWT_SECRET: ${JWT_SECRET:?JWT_SECRET obrigatório no .env do stack}
+  COOKIE_SECRET: ${COOKIE_SECRET:?COOKIE_SECRET obrigatório no .env do stack}
+  MEDUSA_ADMIN_EMAIL: ${MEDUSA_ADMIN_EMAIL}
+  MEDUSA_ADMIN_PASSWORD: ${MEDUSA_ADMIN_PASSWORD}
+  POS_PAYMENTS_MANUAL: ${POS_PAYMENTS_MANUAL:-true}
+  POS_PAYMENTS_MP_TEST: ${POS_PAYMENTS_MP_TEST:-false}
+  MP_ACCESS_TOKEN: ${MP_ACCESS_TOKEN:-}
+  MP_WEBHOOK_SECRET: ${MP_WEBHOOK_SECRET:-}
+  ADMIN_CORS: ${ADMIN_CORS:-http://localhost:9000,http://localhost:1420,tauri://localhost,http://tauri.localhost,http://localhost:8000}
+  AUTH_CORS: ${AUTH_CORS:-http://localhost:9000,http://localhost:1420,tauri://localhost,http://tauri.localhost,http://localhost:8000}
+  STORE_CORS: ${STORE_CORS:-http://localhost:8000}
+
+services:
+  migrate:
+    image: pos-backend:homolog
+    command: ["node", "node_modules/@medusajs/cli/cli.js", "db:migrate"]
+    environment: *backend-env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+    init: true
+    security_opt:
+      - no-new-privileges:true
+    # DNS embutido do docker: o resolv.conf do host WSL é do Tailscale
+    # MagicDNS (100.100.100.100), que nao conhece nomes de servico do docker
+    # (EAI_AGAIN) — aponta explicitamente para o resolver 127.0.0.11.
+    dns:
+      - 127.0.0.11
+
+  sync-links:
+    image: pos-backend:homolog
+    command: ["node", "node_modules/@medusajs/cli/cli.js", "db:sync-links"]
+    environment: *backend-env
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: "no"
+    init: true
+    security_opt:
+      - no-new-privileges:true
+    # DNS embutido do docker: o resolv.conf do host WSL é do Tailscale
+    # MagicDNS (100.100.100.100), que nao conhece nomes de servico do docker
+    # (EAI_AGAIN) — aponta explicitamente para o resolver 127.0.0.11.
+    dns:
+      - 127.0.0.11
+
+  ensure-admin:
+    image: pos-backend:homolog
+    command: ["node", "node_modules/@medusajs/cli/cli.js", "exec", "./src/scripts/ensure-admin.js"]
+    environment: *backend-env
+    depends_on:
+      sync-links:
+        condition: service_completed_successfully
+    restart: "no"
+    init: true
+    security_opt:
+      - no-new-privileges:true
+    # DNS embutido do docker: o resolv.conf do host WSL é do Tailscale
+    # MagicDNS (100.100.100.100), que nao conhece nomes de servico do docker
+    # (EAI_AGAIN) — aponta explicitamente para o resolver 127.0.0.11.
+    dns:
+      - 127.0.0.11
+
+  backend:
+    build:
+      context: ../backend
+      target: runner
+    image: pos-backend:homolog
+    environment: *backend-env
+    ports:
+      - "9000:9000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      ensure-admin:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:9000/health').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+      start_interval: 5s
+    init: true
+    security_opt:
+      - no-new-privileges:true
+    # DNS embutido do docker: o resolv.conf do host WSL é do Tailscale
+    # MagicDNS (100.100.100.100), que nao conhece nomes de servico do docker
+    # (EAI_AGAIN) — aponta explicitamente para o resolver 127.0.0.11.
+    dns:
+      - 127.0.0.11
+    restart: unless-stopped
+    mem_limit: 1500m
